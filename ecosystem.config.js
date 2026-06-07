@@ -6,7 +6,7 @@ module.exports = {
       cwd: '/var/www/kanban',
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 3005,
       },
       watch: false,
       max_memory_restart: '300M',
