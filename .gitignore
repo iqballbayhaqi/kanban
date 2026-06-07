@@ -1,0 +1,7 @@
+node_modules/
+.env
+frontend/dist/
+backend/kanban.db
+*.log
+.DS_Store
+Thumbs.db
