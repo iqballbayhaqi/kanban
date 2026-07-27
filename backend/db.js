@@ -4,9 +4,19 @@ const path = require('path');
 
 let db;
 
+// Nama file DB bisa dioverride lewat env DB_FILE (lihat script dev/prod di package.json).
+// Default tetap kanban.db supaya pm2/ecosystem.config.js di server tidak berubah perilaku.
+const DB_FILE = process.env.DB_FILE || 'kanban.db';
+
+function getDbPath() {
+  return path.isAbsolute(DB_FILE) ? DB_FILE : path.join(__dirname, DB_FILE);
+}
+
 function getDb() {
   if (!db) {
-    db = new Database(path.join(__dirname, 'kanban.db'));
+    const dbPath = getDbPath();
+    console.log(`Using database: ${dbPath}`);
+    db = new Database(dbPath);
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
   }
@@ -119,4 +129,4 @@ function initDb() {
   }
 }
 
-module.exports = { getDb, initDb };
+module.exports = { getDb, initDb, getDbPath };

@@ -26,6 +26,25 @@ export interface Card {
   created_at: string;
 }
 
+/** Card + konteks board/list-nya, dari GET /api/cards/all (halaman Master Kanban). */
+export interface MasterCard extends Omit<Card, 'checklist_items'> {
+  column_title: string;
+  column_position: number;
+  board_id: number;
+  board_title: string;
+  board_color: string;
+  checklist_total: number;
+  checklist_checked: number;
+}
+
+/** Column tanpa isi card, dari GET /api/columns/all (halaman Master Kanban). */
+export interface MasterColumn {
+  id: number;
+  title: string;
+  board_id: number;
+  position: number;
+}
+
 export interface Column {
   id: number;
   title: string;

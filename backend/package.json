@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "cross-env DB_FILE=kanban.dev.db nodemon server.js",
+    "prod": "cross-env DB_FILE=kanban.db node server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -15,6 +16,7 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "nodemon": "^3.0.3"
   }
 }

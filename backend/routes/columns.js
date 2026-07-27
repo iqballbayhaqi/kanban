@@ -5,6 +5,21 @@ const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 router.use(authenticateToken);
 
+// Semua list milik user lintas board — dipakai halaman Master Kanban untuk
+// memindahkan card antar list tanpa harus membuka board-nya dulu.
+router.get('/all', (req, res) => {
+  const db = getDb();
+  const columns = db.prepare(`
+    SELECT col.id, col.title, col.position, col.board_id
+    FROM columns col
+    JOIN boards b ON col.board_id = b.id
+    WHERE b.user_id = ?
+    ORDER BY col.board_id, col.position
+  `).all(req.user.id);
+
+  res.json(columns);
+});
+
 router.post('/', (req, res) => {
   const { title, board_id } = req.body;
   if (!title || !board_id) return res.status(400).json({ error: 'Title and board_id required' });

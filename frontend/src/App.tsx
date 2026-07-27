@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
 import DailyPage from './pages/DailyPage';
+import MasterPage from './pages/MasterPage';
 import AppLayout from './components/AppLayout';
 import { DialogProvider } from './contexts/DialogContext';
 
@@ -19,6 +20,7 @@ function AppRoutes() {
       <Route path="/login" element={token ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<DashboardPage />} />
+        <Route path="/master" element={<MasterPage />} />
         <Route path="/daily" element={<DailyPage />} />
       </Route>
       <Route path="/board/:id" element={<ProtectedRoute><BoardPage /></ProtectedRoute>} />
