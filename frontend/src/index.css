@@ -1699,3 +1699,346 @@ textarea { resize: vertical; }
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== MASTER KANBAN ===== */
+.master {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0d2137 100%);
+}
+
+.master-main {
+  padding: 0 28px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.master-count {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap;
+}
+
+/* Ringkasan */
+.master-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.master-stat {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.master-stat-value { font-size: 22px; font-weight: 800; color: white; line-height: 1.1; }
+.master-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+.master-stat-danger { background: rgba(235,90,70,0.16); border-color: rgba(235,90,70,0.35); }
+.master-stat-danger .master-stat-value { color: #ff8f7d; }
+.master-stat-warn { background: rgba(255,159,26,0.14); border-color: rgba(255,159,26,0.32); }
+.master-stat-warn .master-stat-value { color: #ffb959; }
+
+/* Toolbar filter */
+.master-toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 16px;
+}
+
+.master-search {
+  position: relative;
+  display: flex; align-items: center;
+  flex: 1 1 260px;
+}
+.master-search svg {
+  position: absolute; left: 11px;
+  color: rgba(255,255,255,0.45);
+  pointer-events: none;
+}
+.master-search input[type="text"] {
+  width: 100%;
+  padding: 9px 30px 9px 33px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+}
+.master-search input[type="text"]::placeholder { color: rgba(255,255,255,0.45); }
+.master-search input[type="text"]:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.13);
+}
+.master-search-clear {
+  position: absolute; right: 8px;
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.5); font-size: 12px;
+  padding: 4px;
+}
+.master-search-clear:hover { color: white; }
+
+.master-reset {
+  padding: 9px 14px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  color: white; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.master-reset:hover { background: rgba(255,255,255,0.2); }
+
+/* Tabel */
+.master-table-wrap {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.master-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+.master-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.55);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  white-space: nowrap;
+}
+.master-th-task { width: 40%; }
+
+.master-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.master-table tbody tr { cursor: pointer; transition: background 0.12s; }
+.master-table tbody tr:hover { background: rgba(255,255,255,0.07); }
+.master-table tbody tr:last-child td { border-bottom: none; }
+
+.master-td-task { display: flex; align-items: flex-start; gap: 10px; }
+.master-label-dot {
+  width: 4px; align-self: stretch; min-height: 30px;
+  border-radius: 2px; flex-shrink: 0;
+}
+.master-task-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.master-task-title { font-weight: 600; color: white; }
+.master-task-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 460px;
+}
+
+.master-board-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+}
+.master-board-swatch { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.master-list-pill {
+  display: inline-block;
+  padding: 3px 9px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+}
+
+.master-muted { color: rgba(255,255,255,0.3); }
+
+/* Baris yang sedang disimpan ke server. */
+.master-table tbody tr.is-moving { opacity: 0.55; }
+
+.master-alert {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(235,90,70,0.16);
+  border: 1px solid rgba(235,90,70,0.4);
+  border-radius: 8px;
+  color: #ffc9c0;
+  font-size: 13px;
+}
+.master-alert-close {
+  margin-left: auto;
+  background: none; border: none;
+  color: inherit; font-size: 13px;
+  cursor: pointer; opacity: 0.7; line-height: 1;
+}
+.master-alert-close:hover { opacity: 1; }
+
+.master-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 64px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.65);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .master-main { padding: 0 16px 32px; }
+}
+
+/* Header tabel yang bisa diklik untuk sorting */
+.master-th-sort {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.12s, background 0.12s;
+}
+.master-th-sort:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+.master-th-sort.is-active { color: white; }
+
+.master-sort-arrow {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 9px;
+  opacity: 0.3;
+  vertical-align: middle;
+}
+.master-th-sort:hover .master-sort-arrow { opacity: 0.6; }
+.master-th-sort.is-active .master-sort-arrow { opacity: 1; color: #4aa3df; }
+
+/* ===== SELECT MENU (dropdown custom) ===== */
+.selectmenu { position: relative; flex: 0 1 auto; min-width: 156px; }
+
+.selectmenu-trigger {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%;
+  padding: 9px 11px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.selectmenu-trigger:hover { background: rgba(255,255,255,0.14); }
+.selectmenu-trigger:focus-visible {
+  outline: none;
+  border-color: #4aa3df;
+  box-shadow: 0 0 0 3px rgba(74,163,223,0.25);
+}
+.selectmenu.is-open .selectmenu-trigger {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.35);
+}
+.selectmenu-trigger:disabled { opacity: 0.5; cursor: progress; }
+
+/* Varian ringkas untuk di dalam sel tabel — tampil seperti pill sampai di-hover. */
+.selectmenu-inline { min-width: 0; display: inline-block; }
+.selectmenu-inline .selectmenu-trigger {
+  gap: 6px;
+  padding: 3px 7px 3px 9px;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
+  border-radius: 4px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+}
+.selectmenu-inline .selectmenu-trigger:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.3);
+  color: white;
+}
+.selectmenu-inline .selectmenu-value { white-space: nowrap; }
+.selectmenu-inline .selectmenu-chevron { width: 9px; height: 9px; }
+
+.selectmenu-value {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.selectmenu-chevron {
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: transform 0.18s, opacity 0.15s;
+}
+.selectmenu-trigger:hover .selectmenu-chevron { opacity: 0.9; }
+.selectmenu.is-open .selectmenu-chevron { transform: rotate(180deg); opacity: 1; }
+
+.selectmenu-swatch {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+}
+
+/* Panel opsi — dirender lewat portal di <body>, posisinya diatur inline
+   dari JS supaya tidak terpotong container ber-overflow (mis. tabel Master). */
+.selectmenu-panel {
+  position: fixed;
+  max-width: 280px;
+  overflow-y: auto;
+  padding: 5px;
+  background: #16304a;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 9px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  z-index: 60;
+  animation: selectmenu-in 0.13s ease-out;
+}
+
+@keyframes selectmenu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.selectmenu-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.selectmenu-option.is-active {
+  background: rgba(255,255,255,0.12);
+  color: white;
+}
+.selectmenu-option.is-selected { color: white; font-weight: 600; }
+.selectmenu-option.is-selected.is-active { background: rgba(74,163,223,0.32); }
+
+.selectmenu-option-label {
+  flex: 1;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.selectmenu-check { flex-shrink: 0; color: #4aa3df; }
+
+/* Scrollbar panel */
+.selectmenu-panel::-webkit-scrollbar { width: 9px; }
+.selectmenu-panel::-webkit-scrollbar-track { background: transparent; }
+.selectmenu-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 5px;
+  border: 2px solid #16304a;
+}
+.selectmenu-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+@media (max-width: 768px) {
+  .selectmenu { flex: 1 1 140px; }
+}

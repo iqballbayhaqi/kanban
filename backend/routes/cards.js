@@ -13,6 +13,44 @@ const getUserCard = (db, cardId, userId) =>
     WHERE ca.id = ? AND b.user_id = ?
   `).get(cardId, userId);
 
+// Semua card milik user lintas board — dipakai halaman Master Kanban.
+router.get('/all', (req, res) => {
+  const db = getDb();
+
+  const cards = db.prepare(`
+    SELECT
+      ca.id, ca.title, ca.description, ca.column_id, ca.position,
+      ca.label_color, ca.due_date, ca.priority, ca.created_at,
+      col.title AS column_title, col.position AS column_position,
+      b.id AS board_id, b.title AS board_title, b.color AS board_color
+    FROM cards ca
+    JOIN columns col ON ca.column_id = col.id
+    JOIN boards b ON col.board_id = b.id
+    WHERE b.user_id = ?
+    ORDER BY b.created_at DESC, col.position, ca.position
+  `).all(req.user.id);
+
+  // Hitung checklist sekali jalan supaya tidak query per card.
+  const counts = db.prepare(`
+    SELECT ci.card_id, COUNT(*) AS total, SUM(ci.is_checked) AS checked
+    FROM checklist_items ci
+    JOIN cards ca ON ci.card_id = ca.id
+    JOIN columns col ON ca.column_id = col.id
+    JOIN boards b ON col.board_id = b.id
+    WHERE b.user_id = ?
+    GROUP BY ci.card_id
+  `).all(req.user.id);
+
+  const byCard = new Map(counts.map(c => [c.card_id, c]));
+  for (const card of cards) {
+    const c = byCard.get(card.id);
+    card.checklist_total = c ? c.total : 0;
+    card.checklist_checked = c ? Number(c.checked) : 0;
+  }
+
+  res.json(cards);
+});
+
 router.post('/', (req, res) => {
   const { title, description, column_id, label_color, due_date, priority } = req.body;
   if (!title || !column_id) return res.status(400).json({ error: 'Title and column_id required' });
@@ -67,6 +105,17 @@ router.put('/:id/move', (req, res) => {
   if (!card) return res.status(404).json({ error: 'Card not found' });
 
   const targetColId = column_id !== undefined ? column_id : card.column_id;
+
+  // Column tujuan wajib milik user yang sama — tanpa cek ini card bisa
+  // dilempar ke board orang lain hanya dengan menebak column_id.
+  if (targetColId !== card.column_id) {
+    const target = db.prepare(`
+      SELECT col.id FROM columns col
+      JOIN boards b ON col.board_id = b.id
+      WHERE col.id = ? AND b.user_id = ?
+    `).get(targetColId, req.user.id);
+    if (!target) return res.status(404).json({ error: 'Target column not found' });
+  }
 
   db.transaction(() => {
     db.prepare('UPDATE cards SET position = position - 1 WHERE column_id = ? AND position > ?').run(card.column_id, card.position);
