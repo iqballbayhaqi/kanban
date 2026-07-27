@@ -7,6 +7,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: 3005,
+        DB_FILE: 'kanban.db',
       },
       watch: false,
       max_memory_restart: '300M',

@@ -1,7 +1,10 @@
 node_modules/
 .env
 frontend/dist/
-backend/kanban.db
+backend/*.db
+backend/*.db.bak
+# Dump isi DB — berisi email & hash password, jangan pernah masuk repo.
+backend/migrate_data.json
 *.log
 .DS_Store
 Thumbs.db
