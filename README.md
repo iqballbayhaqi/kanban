@@ -20,6 +20,7 @@ Baca bagian ini dulu. Semuanya pernah menyebabkan waktu terbuang.
 | Branch utama repo ini `master` | **`main`.** Lihat [Branch dan deploy](#branch-dan-deploy) |
 | Deploy otomatis berjalan mulus | Pernah gagal berulang karena file lokal di VPS. Lihat [Kalau deploy gagal](#kalau-deploy-gagal) |
 | `pm2 restart` membaca ulang `ecosystem.config.js` | Tidak. Lihat [Catatan pm2](#catatan-pm2) |
+| `deploy/nginx.conf` = konfigurasi nginx yang hidup | Bukan. Sudah basi dan tanpa HTTPS. Lihat [nginx](#nginx) |
 
 ---
 
@@ -203,6 +204,36 @@ pm2 save
 Ini yang membuat `DB_FILE: 'kanban.db'` di `ecosystem.config.js` sifatnya sekadar
 dokumentasi niat — nilainya kebetulan sama dengan default di `db.js`, jadi tidak
 ada bedanya kalau belum aktif.
+
+### nginx
+
+> **`deploy/nginx.conf` bukan konfigurasi yang sedang hidup di server.** File itu
+> hanya cetak biru untuk provisioning awal (`deploy/setup.sh`).
+
+Konfigurasi nyata ada di `/etc/nginx/sites-enabled/kanban` dan sudah berbeda:
+Certbot menambahkan blok HTTPS di sana, sedangkan file di repo hanya punya
+`listen 80`.
+
+| | `deploy/nginx.conf` (repo) | `/etc/nginx/sites-enabled/kanban` (live) |
+|---|---|---|
+| HTTP | `listen 80` | `listen 80` + redirect ke HTTPS |
+| HTTPS | tidak ada | `listen 443 ssl` + sertifikat Let's Encrypt |
+
+Menyalin file repo menimpa konfigurasi live akan **mematikan HTTPS** situs.
+Kalau perlu mengubah perilaku nginx, edit langsung file di server, atau salin
+dulu blok `# managed by Certbot` dari sana.
+
+### Jangan pernah menambal langsung di server
+
+`ecosystem.config.js` pernah diedit manual di VPS (`PORT: 3001` → `3005`) tanpa
+di-commit. Akibatnya `git pull` selalu batal dan **setiap deploy gagal selama
+tujuh minggu** — termasuk deploy yang justru membawa perbaikan resmi untuk
+masalah yang sama. Server diam-diam tertinggal 5 commit sementara semua orang
+mengira sudah ter-deploy.
+
+Kalau terpaksa menambal di server untuk memadamkan kebakaran, segera bawa
+perubahannya ke repo dan bersihkan working tree VPS. Nilai yang memang khusus
+server taruh di `.env`, bukan dengan mengedit file yang di-track git.
 
 ---
 
