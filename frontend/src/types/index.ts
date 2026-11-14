@@ -83,6 +83,8 @@ export interface Board {
   description?: string | null;
   color: string;
   wallpaper_url?: string | null;
+  /** Waktu diarsipkan (ISO). null/undefined = board aktif. */
+  archived_at?: string | null;
   user_id: number;
   columns?: Column[];
   column_counts?: BoardColumnCount[];

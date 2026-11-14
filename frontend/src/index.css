@@ -383,6 +383,40 @@ textarea { resize: vertical; }
   border-bottom: 1px solid rgba(255,255,255,0.15);
 }
 
+/* Tab Aktif / Archive di My Boards */
+.board-tabs {
+  display: inline-flex; gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 8px;
+}
+.board-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px; font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.board-tab:hover { color: white; background: rgba(255,255,255,0.08); }
+.board-tab.active { background: rgba(255,255,255,0.18); color: white; }
+.board-tab-n {
+  font-size: 11px; font-weight: 800;
+  background: rgba(255,255,255,0.2);
+  padding: 1px 7px; border-radius: 9px;
+}
+.boards-empty {
+  color: rgba(255,255,255,0.65);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+/* Board terarsip: sedikit diredupkan supaya beda dari yang aktif. */
+.board-card.is-archived { filter: saturate(0.45); opacity: 0.85; }
+.board-card.is-archived:hover { filter: none; opacity: 1; }
+
 .boards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

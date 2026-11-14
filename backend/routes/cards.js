@@ -26,7 +26,7 @@ router.get('/all', (req, res) => {
     FROM cards ca
     JOIN columns col ON ca.column_id = col.id
     JOIN boards b ON col.board_id = b.id
-    WHERE b.user_id = ?
+    WHERE b.user_id = ? AND b.archived_at IS NULL  -- board terarsip tidak tampil di Master
     ORDER BY b.created_at DESC, col.position, ca.position
   `).all(req.user.id);
 

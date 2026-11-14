@@ -47,16 +47,25 @@ router.get('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-  const { title, description, color, wallpaper_url } = req.body;
+  const { title, description, color, wallpaper_url, archived } = req.body;
+  if (archived !== undefined && typeof archived !== 'boolean') {
+    return res.status(400).json({ error: 'archived must be true or false' });
+  }
   const db = getDb();
   const board = db.prepare('SELECT * FROM boards WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
   if (!board) return res.status(404).json({ error: 'Board not found' });
 
-  db.prepare('UPDATE boards SET title = ?, description = ?, color = ?, wallpaper_url = ? WHERE id = ?').run(
+  // archived: true → catat waktunya (kalau sudah terarsip, waktunya tidak diubah); false → aktif lagi.
+  let archivedAt = board.archived_at;
+  if (archived === true && !board.archived_at) archivedAt = new Date().toISOString();
+  if (archived === false) archivedAt = null;
+
+  db.prepare('UPDATE boards SET title = ?, description = ?, color = ?, wallpaper_url = ?, archived_at = ? WHERE id = ?').run(
     title ?? board.title,
     description !== undefined ? description : board.description,
     color ?? board.color,
     wallpaper_url !== undefined ? (wallpaper_url || null) : board.wallpaper_url,
+    archivedAt,
     board.id
   );
   res.json(db.prepare('SELECT * FROM boards WHERE id = ?').get(board.id));

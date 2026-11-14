@@ -24,7 +24,7 @@ router.get('/all', (req, res) => {
     SELECT col.id, col.title, col.position, col.board_id, col.color
     FROM columns col
     JOIN boards b ON col.board_id = b.id
-    WHERE b.user_id = ?
+    WHERE b.user_id = ? AND b.archived_at IS NULL
     ORDER BY col.board_id, col.position
   `).all(req.user.id);
 
