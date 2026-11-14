@@ -100,6 +100,8 @@ function initDb() {
   try { db.exec('ALTER TABLE cards ADD COLUMN due_date TEXT'); } catch { }
   try { db.exec('ALTER TABLE boards ADD COLUMN wallpaper_url TEXT'); } catch { }
   try { db.exec('ALTER TABLE cards ADD COLUMN priority TEXT'); } catch { }
+  // Warna list (hex #rrggbb). NULL = tanpa warna.
+  try { db.exec('ALTER TABLE columns ADD COLUMN color TEXT'); } catch { }
 
   const seedEmail = process.env.SEED_EMAIL || 'baihaqiiqbal323@gmail.com';
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(seedEmail);

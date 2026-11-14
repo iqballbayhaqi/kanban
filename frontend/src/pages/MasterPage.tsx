@@ -430,12 +430,17 @@ export default function MasterPage() {
                             variant="inline"
                             ariaLabel={`Pindahkan "${card.title}" ke list lain`}
                             value={String(card.column_id)}
-                            options={boardColumns.map(c => ({ value: String(c.id), label: c.title }))}
+                            options={boardColumns.map(c => ({ value: String(c.id), label: c.title, swatch: c.color ?? '' }))}
                             onChange={v => moveCard(card, Number(v))}
                             disabled={movingId === card.id}
                           />
                         ) : (
-                          <span className="master-list-pill">{card.column_title}</span>
+                          <span className="master-list-pill">
+                            {card.column_color && (
+                              <span className="master-board-swatch" style={{ background: card.column_color }} />
+                            )}
+                            {card.column_title}
+                          </span>
                         )}
                       </td>
                       <td>

@@ -9,10 +9,11 @@ router.get('/', (req, res) => {
   const db = getDb();
   const boards = db.prepare('SELECT * FROM boards WHERE user_id = ? ORDER BY created_at DESC').all(req.user.id);
   for (const board of boards) {
-    const cols = db.prepare('SELECT id, title FROM columns WHERE board_id = ? ORDER BY position').all(board.id);
+    const cols = db.prepare('SELECT id, title, color FROM columns WHERE board_id = ? ORDER BY position').all(board.id);
     board.column_counts = cols.map(col => ({
       id: col.id,
       title: col.title,
+      color: col.color,
       card_count: db.prepare('SELECT COUNT(*) as n FROM cards WHERE column_id = ?').get(col.id).n,
     }));
   }

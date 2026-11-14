@@ -21,7 +21,7 @@ router.get('/all', (req, res) => {
     SELECT
       ca.id, ca.title, ca.description, ca.column_id, ca.position,
       ca.label_color, ca.due_date, ca.priority, ca.created_at,
-      col.title AS column_title, col.position AS column_position,
+      col.title AS column_title, col.position AS column_position, col.color AS column_color,
       b.id AS board_id, b.title AS board_title, b.color AS board_color
     FROM cards ca
     JOIN columns col ON ca.column_id = col.id

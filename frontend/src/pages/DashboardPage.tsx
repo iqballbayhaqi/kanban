@@ -128,6 +128,7 @@ export default function DashboardPage() {
                     <div className="board-card-counts">
                       {board.column_counts.slice(0, 4).map(col => (
                         <span key={col.id} className="board-col-pill">
+                          {col.color && <span className="board-col-pill-dot" style={{ background: col.color }} />}
                           {col.title} <span className="board-col-pill-n">{col.card_count}</span>
                         </span>
                       ))}

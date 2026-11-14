@@ -6,6 +6,7 @@ import { Column, Card } from '../types';
 import KanbanCard from './KanbanCard';
 import api from '../api';
 import { useDialog } from '../contexts/DialogContext';
+import { LIST_COLORS, listColorProps } from '../listColors';
 
 interface Props {
   column: Column;
@@ -13,10 +14,11 @@ interface Props {
   onCardClick: (card: Card) => void;
   onColumnDeleted: (colId: number) => void;
   onColumnRenamed: (colId: number, title: string) => void;
+  onColumnColorChanged: (colId: number, color: string | null) => void;
   filterPriority: string;
 }
 
-export default function KanbanColumn({ column, onCardAdded, onCardClick, onColumnDeleted, onColumnRenamed, filterPriority }: Props) {
+export default function KanbanColumn({ column, onCardAdded, onCardClick, onColumnDeleted, onColumnRenamed, onColumnColorChanged, filterPriority }: Props) {
   const { confirm } = useDialog();
   const [addingCard, setAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
@@ -29,6 +31,7 @@ export default function KanbanColumn({ column, onCardAdded, onCardClick, onColum
   useEffect(() => { setColTitle(column.title); }, [column.title]);
 
   const isFiltered = !!filterPriority;
+  const colorProps = listColorProps(column.color);
   const visibleCards = isFiltered
     ? column.cards.filter((c) => c.priority === filterPriority)
     : column.cards;
@@ -64,6 +67,18 @@ export default function KanbanColumn({ column, onCardAdded, onCardClick, onColum
     } catch { setColTitle(column.title); }
   };
 
+  const changeColor = async (color: string | null) => {
+    setShowMenu(false);
+    const prev = column.color ?? null;
+    if (color === prev) return;
+    onColumnColorChanged(column.id, color);
+    try {
+      await api.put(`/columns/${column.id}`, { color });
+    } catch {
+      onColumnColorChanged(column.id, prev);
+    }
+  };
+
   const deleteColumn = async () => {
     setShowMenu(false);
     const ok = await confirm(`List "${column.title}" dan semua card di dalamnya akan dihapus.`, {
@@ -77,8 +92,11 @@ export default function KanbanColumn({ column, onCardAdded, onCardClick, onColum
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
-      className={`kanban-column${isFiltered ? ' filtered' : ''}`}
+      style={{
+        transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1,
+        ...colorProps.style,
+      }}
+      className={`kanban-column${isFiltered ? ' filtered' : ''}${colorProps.className}`}
     >
       {/* drag handle is the header */}
       <div className="column-header" {...attributes} {...listeners}>
@@ -116,6 +134,29 @@ export default function KanbanColumn({ column, onCardAdded, onCardClick, onColum
           {showMenu && (
             <div className="column-menu">
               <button onClick={() => { setShowMenu(false); setEditingTitle(true); }}>Rename</button>
+              <div className="column-menu-section">
+                <span className="column-menu-label">Warna</span>
+                <div className="column-color-row">
+                  {LIST_COLORS.map(({ color, name }) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`column-color-dot${column.color === color ? ' active' : ''}`}
+                      style={{ background: color }}
+                      title={name}
+                      aria-label={`Warna ${name}`}
+                      onClick={() => changeColor(color)}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    className={`column-color-dot column-color-none${!column.color ? ' active' : ''}`}
+                    title="Tanpa warna"
+                    aria-label="Tanpa warna"
+                    onClick={() => changeColor(null)}
+                  />
+                </div>
+              </div>
               <button className="danger" onClick={deleteColumn}>Delete</button>
             </div>
           )}

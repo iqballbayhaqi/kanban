@@ -30,6 +30,7 @@ export interface Card {
 export interface MasterCard extends Omit<Card, 'checklist_items'> {
   column_title: string;
   column_position: number;
+  column_color?: string | null;
   board_id: number;
   board_title: string;
   board_color: string;
@@ -43,6 +44,7 @@ export interface MasterColumn {
   title: string;
   board_id: number;
   position: number;
+  color?: string | null;
 }
 
 export interface Column {
@@ -50,6 +52,8 @@ export interface Column {
   title: string;
   board_id: number;
   position: number;
+  /** Warna list (hex). null/undefined = tanpa warna. */
+  color?: string | null;
   cards: Card[];
   created_at: string;
 }
@@ -69,6 +73,7 @@ export interface Habit {
 export interface BoardColumnCount {
   id: number;
   title: string;
+  color?: string | null;
   card_count: number;
 }
 

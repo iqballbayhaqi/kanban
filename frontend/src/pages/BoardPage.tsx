@@ -16,6 +16,7 @@ import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-
 import api from '../api';
 import { Board, Column, Card } from '../types';
 import KanbanColumn from '../components/KanbanColumn';
+import { listColorProps } from '../listColors';
 import CardModal from '../components/CardModal';
 
 const FILTER_PRIORITIES = [
@@ -166,6 +167,9 @@ export default function BoardPage() {
   const onColumnRenamed = (colId: number, title: string) =>
     setColumns((prev) => prev.map((c) => (c.id === colId ? { ...c, title } : c)));
 
+  const onColumnColorChanged = (colId: number, color: string | null) =>
+    setColumns((prev) => prev.map((c) => (c.id === colId ? { ...c, color } : c)));
+
   const addColumn = async () => {
     if (!newColTitle.trim()) { setAddingCol(false); return; }
     try {
@@ -228,6 +232,7 @@ export default function BoardPage() {
                   onCardClick={setSelectedCard}
                   onColumnDeleted={onColumnDeleted}
                   onColumnRenamed={onColumnRenamed}
+                  onColumnColorChanged={onColumnColorChanged}
                   filterPriority={filterPriority}
                 />
               ))}
@@ -270,7 +275,10 @@ export default function BoardPage() {
                 </div>
               )}
               {activeColumn && (
-                <div className="kanban-column overlay-column">
+                <div
+                  className={`kanban-column overlay-column${listColorProps(activeColumn.color).className}`}
+                  style={listColorProps(activeColumn.color).style}
+                >
                   <div className="column-header">
                     <h3 className="column-title">{activeColumn.title}</h3>
                   </div>
