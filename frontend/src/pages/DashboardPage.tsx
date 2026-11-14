@@ -26,7 +26,7 @@ export default function DashboardPage() {
 
   const [formTitle, setFormTitle] = useState('');
   const [formDesc, setFormDesc] = useState('');
-  const [formColor, setFormColor] = useState('#0079bf');
+  const [formColor, setFormColor] = useState('#519839');
   const [formWallpaper, setFormWallpaper] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -39,7 +39,7 @@ export default function DashboardPage() {
   }, []);
 
   const openCreate = () => {
-    setFormTitle(''); setFormDesc(''); setFormColor('#0079bf'); setFormWallpaper('');
+    setFormTitle(''); setFormDesc(''); setFormColor('#519839'); setFormWallpaper('');
     setModal({ mode: 'create' });
   };
 

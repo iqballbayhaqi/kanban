@@ -198,7 +198,7 @@ export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) 
               <div className="progress-bar">
                 <div
                   className="progress-fill"
-                  style={{ width: `${progress}%`, background: progress === 100 ? '#61bd4f' : '#0079bf' }}
+                  style={{ width: `${progress}%`, background: progress === 100 ? '#61bd4f' : '#15803d' }}
                 />
               </div>
             </div>

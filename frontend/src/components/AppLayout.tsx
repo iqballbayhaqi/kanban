@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import PageTransition from './PageTransition';
 
 export interface LayoutContext {
   onMenuClick: () => void;
@@ -16,7 +17,9 @@ export default function AppLayout() {
       )}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="app-content">
-        <Outlet context={{ onMenuClick: () => setSidebarOpen(true) } satisfies LayoutContext} />
+        <PageTransition>
+          <Outlet context={{ onMenuClick: () => setSidebarOpen(true) } satisfies LayoutContext} />
+        </PageTransition>
       </div>
     </div>
   );

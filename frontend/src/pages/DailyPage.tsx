@@ -103,39 +103,34 @@ function HistoryCard({ habit }: { habit: HabitHistory }) {
   };
 
   return (
+    // Satu baris ringkas per habit: info + statistik di kiri, heatmap kecil di kanan.
     <div className="history-card">
-      <div className="history-card-header">
-        <span className="history-habit-dot" style={{ background: habit.color }} />
-        <span className="history-habit-name">{habit.title}</span>
-        {habit.done && <span className="history-done-today">✓ Hari ini</span>}
-      </div>
+      <div className="history-card-info">
+        <div className="history-card-header">
+          <span className="history-habit-dot" style={{ background: habit.color }} />
+          <span className="history-habit-name" title={habit.title}>{habit.title}</span>
+          {habit.done && <span className="history-done-today">✓ Hari ini</span>}
+        </div>
 
-      <div className="history-stats-row">
-        <div className="hstat">
-          <span className="hstat-val">🔥 {stats.current_streak}</span>
-          <span className="hstat-lbl">Streak</span>
+        <div className="history-rate">
+          <div className="history-rate-bar">
+            <div className="history-rate-fill" style={{ width: `${stats.completion_rate}%`, background: habit.color }} />
+          </div>
+          <span className="history-rate-val">{stats.completion_rate}%</span>
         </div>
-        <div className="hstat">
-          <span className="hstat-val">🏆 {stats.best_streak}</span>
-          <span className="hstat-lbl">Terbaik</span>
-        </div>
-        <div className="hstat">
-          <span className="hstat-val">{stats.total_done}</span>
-          <span className="hstat-lbl">Total ✓</span>
-        </div>
-        <div className="hstat">
-          <span className="hstat-val">{stats.done_in_period}/{stats.period_days}</span>
-          <span className="hstat-lbl">Periode ini</span>
-        </div>
-        <div className="hstat hstat-highlight">
-          <span className="hstat-val">{stats.completion_rate}%</span>
-          <span className="hstat-lbl">Konsistensi</span>
+
+        <div className="history-stats-row">
+          <span className="hstat" title="Streak saat ini">🔥 <b>{stats.current_streak}</b></span>
+          <span className="hstat" title="Streak terbaik">🏆 <b>{stats.best_streak}</b></span>
+          <span className="hstat" title="Selesai di periode ini">✓ <b>{stats.done_in_period}</b>/{stats.period_days}</span>
+          <span className="hstat" title="Total selesai sepanjang waktu">Σ <b>{stats.total_done}</b></span>
         </div>
       </div>
 
+      {/* Heatmap gaya GitHub: kolom = minggu, baris = hari (Sn..Mg), kotak ukuran tetap. */}
       <div className="heatmap-wrap">
         <div className="heatmap-dows">
-          {DOW_LABELS.map(d => <span key={d}>{d}</span>)}
+          {DOW_LABELS.map((d, i) => <span key={d}>{i % 2 === 0 ? d : ''}</span>)}
         </div>
         <div className="heatmap-grid">
           {Array(firstDow).fill(null).map((_, i) => (
@@ -162,7 +157,7 @@ export default function DailyPage() {
   const [loading, setLoading]               = useState(true);
   const [addingHabit, setAddingHabit]       = useState(false);
   const [newTitle, setNewTitle]             = useState('');
-  const [newColor, setNewColor]             = useState('#0079bf');
+  const [newColor, setNewColor]             = useState('#4bbf6b');
   const [editTarget, setEditTarget]         = useState<Habit | null>(null);
   const [editTitle, setEditTitle]           = useState('');
   const [editColor, setEditColor]           = useState('');
@@ -219,7 +214,7 @@ export default function DailyPage() {
     try {
       const { data } = await api.post('/habits', { title: newTitle.trim(), color: newColor });
       setHabits(prev => [...prev, data]);
-      setNewTitle(''); setNewColor('#0079bf'); setAddingHabit(false);
+      setNewTitle(''); setNewColor('#4bbf6b'); setAddingHabit(false);
     } catch (err) { console.error(err); }
   };
 
