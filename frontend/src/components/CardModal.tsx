@@ -30,8 +30,25 @@ interface Props {
   onDelete: (cardId: number) => void;
 }
 
-export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) {
+const PRIORITY_LABEL: Record<string, string> = Object.fromEntries(PRIORITIES.map((p) => [p.value, p.label]));
+
+function formatFullDate(dateStr: string) {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+}
+
+function dueStatus(dateStr: string) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const diff = Math.round((new Date(dateStr + 'T00:00:00').getTime() - today.getTime()) / 86400000);
+  return diff < 0 ? 'overdue' : diff === 0 ? 'today' : 'upcoming';
+}
+
+export default function CardModal({ card: initialCard, onClose, onUpdate, onDelete }: Props) {
   const { confirm } = useDialog();
+  // Klik card membuka mode lihat; tombol Edit baru menampilkan form.
+  const [card, setCard] = useState(initialCard);
+  const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(card.title);
   const [desc, setDesc] = useState(card.description || '');
   const [label, setLabel] = useState(card.label_color || '');
@@ -47,8 +64,26 @@ export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) 
   const newItemRef = useRef<HTMLInputElement>(null);
 
   const handleClose = () => {
+    // Checklist bisa dicentang di mode lihat, jadi kirim item terbaru ke board saat ditutup.
+    onUpdate({ ...card, checklist_items: items });
     setClosing(true);
     setTimeout(onClose, 180);
+  };
+
+  const resetForm = (c: Card) => {
+    setTitle(c.title);
+    setDesc(c.description || '');
+    setLabel(c.label_color || '');
+    setDueDate(c.due_date || '');
+    setPriority(c.priority || '');
+    setAddingItem(false);
+    setNewItemTitle('');
+    setEditingItemId(null);
+  };
+
+  const cancelEdit = () => {
+    resetForm(card);
+    setEditing(false);
   };
 
   const save = async () => {
@@ -61,8 +96,11 @@ export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) 
         due_date: dueDate || null,
         priority: priority || null,
       });
-      onUpdate({ ...data, checklist_items: items });
-      handleClose();
+      const updated = { ...data, checklist_items: items };
+      setCard(updated);
+      onUpdate(updated);
+      resetForm(updated);
+      setEditing(false);
     } catch (err) { console.error(err); }
     finally { setSaving(false); }
   };
@@ -119,6 +157,95 @@ export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) 
   const checked = items.filter((i) => i.is_checked).length;
   const total = items.length;
   const progress = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+  const progressBar = total > 0 && (
+    <div className="checklist-progress">
+      <span className="checklist-pct">{progress}%</span>
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{ width: `${progress}%`, background: progress === 100 ? '#61bd4f' : '#15803d' }}
+        />
+      </div>
+    </div>
+  );
+
+  if (!editing) {
+    const labelName = LABELS.find((l) => l.color === card.label_color)?.name;
+    return (
+      <div className={`modal-overlay${closing ? ' is-closing' : ''}`} onClick={handleClose}>
+        <div className={`modal modal-card card-view${closing ? ' is-closing' : ''}`} onClick={(e) => e.stopPropagation()}>
+          {card.label_color && <div className="card-label-bar" style={{ background: card.label_color }} />}
+
+          <div className="modal-header">
+            <h3 className="card-view-title">{card.title}</h3>
+            <button className="modal-close" onClick={handleClose}>✕</button>
+          </div>
+
+          {(card.priority || card.due_date || card.label_color) && (
+            <div className="card-view-meta">
+              {card.priority && (
+                <div className="card-view-meta-item">
+                  <span className="card-view-meta-label">Priority</span>
+                  <span className={`badge badge-priority-${card.priority}`}>● {PRIORITY_LABEL[card.priority]}</span>
+                </div>
+              )}
+              {card.due_date && (
+                <div className="card-view-meta-item">
+                  <span className="card-view-meta-label">Due Date</span>
+                  <span className={`badge badge-due badge-due-${dueStatus(card.due_date)}`}>{formatFullDate(card.due_date)}</span>
+                </div>
+              )}
+              {card.label_color && (
+                <div className="card-view-meta-item">
+                  <span className="card-view-meta-label">Label</span>
+                  <span className="card-view-label">
+                    <span className="card-view-label-dot" style={{ background: card.label_color }} />
+                    {labelName ?? card.label_color}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="card-view-section">
+            <div className="card-view-meta-label">Description</div>
+            {card.description
+              ? <p className="card-view-desc">{card.description}</p>
+              : <p className="card-view-empty">Belum ada deskripsi.</p>}
+          </div>
+
+          {total > 0 && (
+            <div className="card-view-section">
+              <div className="checklist-header">
+                <span className="card-view-meta-label">Checklist</span>
+                <span className="checklist-count">{checked}/{total}</span>
+              </div>
+              {progressBar}
+              <div className="checklist-items">
+                {items.map((item) => (
+                  <label key={item.id} className="checklist-item card-view-check">
+                    <input
+                      type="checkbox"
+                      checked={item.is_checked === 1}
+                      onChange={() => toggleItem(item)}
+                      className="checklist-checkbox"
+                    />
+                    <span className={`checklist-item-title ${item.is_checked ? 'checked' : ''}`}>{item.title}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="modal-footer">
+            <button className="btn-primary" onClick={() => setEditing(true)} autoFocus>Edit</button>
+            <button className="btn-secondary" onClick={handleClose}>Tutup</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`modal-overlay${closing ? ' is-closing' : ''}`} onClick={handleClose}>
@@ -192,17 +319,7 @@ export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) 
             {total > 0 && <span className="checklist-count">{checked}/{total}</span>}
           </div>
 
-          {total > 0 && (
-            <div className="checklist-progress">
-              <span className="checklist-pct">{progress}%</span>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${progress}%`, background: progress === 100 ? '#61bd4f' : '#15803d' }}
-                />
-              </div>
-            </div>
-          )}
+          {progressBar}
 
           <div className="checklist-items">
             {items.map((item) => (
@@ -267,7 +384,7 @@ export default function CardModal({ card, onClose, onUpdate, onDelete }: Props) 
             {saving ? 'Saving...' : 'Save'}
           </button>
           <button className="btn-danger" onClick={handleDelete}>Delete</button>
-          <button className="btn-secondary" onClick={handleClose}>Cancel</button>
+          <button className="btn-secondary" onClick={cancelEdit}>Cancel</button>
         </div>
       </div>
     </div>

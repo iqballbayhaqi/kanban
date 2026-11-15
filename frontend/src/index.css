@@ -2193,3 +2193,31 @@ textarea { resize: vertical; }
 @media (max-width: 768px) {
   .selectmenu { flex: 1 1 140px; }
 }
+
+/* ===== CARD VIEW (mode lihat, sebelum Edit) ===== */
+.card-view .modal-header { align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.card-view-title {
+  font-size: 18px !important; line-height: 1.35;
+  word-break: break-word; white-space: pre-wrap;
+}
+.card-view-meta {
+  display: flex; flex-wrap: wrap; gap: 14px 22px;
+  margin-bottom: 18px;
+}
+.card-view-meta-item { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.card-view-meta-label {
+  font-size: 12px; font-weight: 600; color: var(--text-med);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.card-view-meta .badge { font-size: 12px; padding: 3px 8px; }
+.card-view-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dark); }
+.card-view-label-dot { width: 14px; height: 14px; border-radius: 3px; }
+.card-view-section { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+.card-view-desc {
+  font-size: 14px; line-height: 1.55; color: var(--text-dark);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 40vh; overflow-y: auto;
+}
+.card-view-empty { font-size: 14px; color: var(--text-light); font-style: italic; }
+.card-view-check { cursor: pointer; }
+.card-view .modal-footer { margin-top: 4px; }
