@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import api from '../api';
 
 const COLORS = [
   '#0079bf','#d29034','#519839','#b04632',
@@ -39,6 +40,26 @@ const PHOTOS = [
   { url: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?w=900&q=75', label: 'Aurora' },
 ];
 
+// Gambar dikecilkan dulu di browser: sisi terpanjang maks 1920px, JPEG, target < 900KB
+// (nginx produksi memakai batas body default 1MB).
+const MAX_SIDE = 1920;
+const MAX_BYTES = 900 * 1024;
+
+async function compressImage(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  for (const quality of [0.85, 0.75, 0.65, 0.5, 0.4]) {
+    const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, 'image/jpeg', quality));
+    if (blob && blob.size <= MAX_BYTES) return blob;
+  }
+  throw new Error('Image is too large even after compression');
+}
+
 type Tab = 'colors' | 'gradients' | 'photos' | 'custom';
 
 interface Props {
@@ -58,11 +79,32 @@ function getBgStyle(color: string, wallpaperUrl: string): React.CSSProperties {
 export default function WallpaperPicker({ color, wallpaperUrl, onColorChange, onWallpaperChange, boardTitle = 'My Board' }: Props) {
   const [tab, setTab] = useState<Tab>(() => {
     if (wallpaperUrl?.includes('gradient')) return 'gradients';
+    if (wallpaperUrl?.startsWith('/api/uploads/')) return 'custom';
     if (wallpaperUrl && !wallpaperUrl.includes('gradient')) return 'photos';
     return 'colors';
   });
   const [customUrl, setCustomUrl] = useState('');
   const [customPreviewOk, setCustomPreviewOk] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    setUploadError('');
+    if (!file.type.startsWith('image/')) { setUploadError('Please choose an image file'); return; }
+    setUploading(true);
+    try {
+      const blob = await compressImage(file);
+      const { data } = await api.post<{ url: string }>('/uploads', blob, { headers: { 'Content-Type': 'image/jpeg' } });
+      onWallpaperChange(data.url);
+    } catch (e: any) {
+      setUploadError(e?.response?.data?.error || e?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const selectColor = (c: string) => { onColorChange(c); onWallpaperChange(''); };
   const selectWallpaper = (w: string) => { onWallpaperChange(w); };
@@ -149,7 +191,25 @@ export default function WallpaperPicker({ color, wallpaperUrl, onColorChange, on
       {/* Custom URL */}
       {tab === 'custom' && (
         <div className="wp-custom">
-          <p className="wp-custom-hint">Paste any image URL as board background</p>
+          <p className="wp-custom-hint">Upload an image from your device</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={e => handleFile(e.target.files?.[0])}
+          />
+          <button
+            type="button"
+            className="btn-secondary btn-sm wp-upload-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? 'Uploading…' : 'Upload from device'}
+          </button>
+          {uploadError && <p className="wp-upload-error">{uploadError}</p>}
+
+          <p className="wp-custom-hint" style={{ marginTop: 4 }}>Or paste any image URL</p>
           <div className="wp-custom-row">
             <input
               type="text"

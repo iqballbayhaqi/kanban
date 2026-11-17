@@ -16,6 +16,8 @@ app.use(express.json());
 
 initDb();
 
+// Harus sebelum router '/api' (checklist) yang memasang auth untuk semua path.
+app.use('/api/uploads', require('./routes/uploads'));
 app.use('/api/auth',    require('./routes/auth'));
 app.use('/api/boards',  require('./routes/boards'));
 app.use('/api/columns', require('./routes/columns'));

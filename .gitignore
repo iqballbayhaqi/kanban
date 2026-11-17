@@ -11,3 +11,6 @@ Thumbs.db
 
 *.db-shm
 *.db-wal
+
+# Gambar wallpaper yang diupload user
+backend/uploads/
